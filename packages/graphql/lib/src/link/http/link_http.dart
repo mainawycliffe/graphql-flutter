@@ -25,9 +25,8 @@ class HttpLink extends Link {
     Map<String, String> headers,
     Map<String, dynamic> credentials,
     Map<String, dynamic> fetchOptions,
+    bool useGETMethod = false,
   }) : super(
-          // @todo possibly this is a bug in dart analyzer
-          // ignore: undefined_named_parameter
           request: (
             Operation operation, [
             NextLink forward,
@@ -83,7 +82,10 @@ class HttpLink extends Link {
               try {
                 // httpOptionsAndBody.body as String
                 final BaseRequest request = await _prepareRequest(
-                    uri, httpHeadersAndBody.body, httpHeaders);
+                    uri,
+                    useGETMethod ? "get" : "post",
+                    httpHeadersAndBody.body,
+                    httpHeaders);
 
                 response = await fetcher.send(request);
 
@@ -154,18 +156,20 @@ Future<Map<String, MultipartFile>> _getFileMap(
 
 Future<BaseRequest> _prepareRequest(
   String url,
+  String httpMethod,
   Map<String, dynamic> body,
   Map<String, String> httpHeaders,
 ) async {
   final Map<String, MultipartFile> fileMap = await _getFileMap(body);
   if (fileMap.isEmpty) {
-    final Request r = Request('post', Uri.parse(url));
+    final Request r = Request(httpMethod, Uri.parse(url));
     r.headers.addAll(httpHeaders);
     r.body = json.encode(body);
     return r;
   }
 
-  final MultipartRequest r = MultipartRequest('post', Uri.parse(url));
+// MultipartRequest should always use post although nothing stops us from using get
+  final MultipartRequest r = MultipartRequest(httpMethod, Uri.parse(url));
   r.headers.addAll(httpHeaders);
   r.fields['operations'] = json.encode(body, toEncodable: (dynamic object) {
     if (object is MultipartFile) {
