@@ -173,7 +173,7 @@ Future<BaseRequest> _prepareRequest(
   }
 
 // MultipartRequest should always use post although nothing stops us from using get
-  final MultipartRequest r = MultipartRequest(httpMethod, Uri.parse(url));
+  final MultipartRequest r = MultipartRequest("post", Uri.parse(url));
   r.headers.addAll(httpHeaders);
   r.fields['operations'] = json.encode(body, toEncodable: (dynamic object) {
     if (object is MultipartFile) {
