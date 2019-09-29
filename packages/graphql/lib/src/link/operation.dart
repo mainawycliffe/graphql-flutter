@@ -41,4 +41,9 @@ class Operation extends RawOperationData {
   bool get isSubscription =>
       operationName != null &&
       document.contains(RegExp(r'.*?subscription ' + operationName));
+
+  /// determine whether an operation is a query
+  bool get isQuery =>
+      operationName != null &&
+      document.contains(RegExp(r'.*?query ' + operationName));
 }

@@ -25,7 +25,7 @@ class HttpLink extends Link {
     Map<String, String> headers,
     Map<String, dynamic> credentials,
     Map<String, dynamic> fetchOptions,
-    bool useGETMethod = false,
+    bool useGETForQueries = false,
   }) : super(
           request: (
             Operation operation, [
@@ -80,12 +80,16 @@ class HttpLink extends Link {
               StreamedResponse response;
 
               try {
+                final method =
+                    useGETForQueries && operation.isQuery ? "get" : "post";
+
                 // httpOptionsAndBody.body as String
                 final BaseRequest request = await _prepareRequest(
-                    uri,
-                    useGETMethod ? "get" : "post",
-                    httpHeadersAndBody.body,
-                    httpHeaders);
+                  uri,
+                  method,
+                  httpHeadersAndBody.body,
+                  httpHeaders,
+                );
 
                 response = await fetcher.send(request);
 
